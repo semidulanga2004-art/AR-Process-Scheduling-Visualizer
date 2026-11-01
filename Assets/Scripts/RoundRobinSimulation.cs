@@ -1,20 +1,28 @@
 
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class RoundRobinSimulation : MonoBehaviour
 {
     public Transform cpu;
     public int timeQuantum = 2;
+    [Header("Animation Settings")]
+public float secondsPerBurstUnit = 3.53f;
 
     private string[] processNames =
         { "P1", "P2", "P3", "P4", "P5" };
 
+    private int[] arrivalTimes = { 0, 2, 4, 5, 6 };
     private int[] burstTimes = { 4, 3, 2, 5, 1 };
 
     private int[] remainingTimes;
     private GameObject[] processes;
-    private Vector3[] queuePositions;
+
+    private Queue<int> readyQueue = new Queue<int>();
+
+    private int nextArrivalIndex = 0;
+    private float simulationTime = 0f;
 
     private bool hasStarted = false;
 
@@ -46,6 +54,7 @@ public class RoundRobinSimulation : MonoBehaviour
         hasStarted = true;
 
         CreateProcesses();
+
         StartCoroutine(RunRoundRobin());
     }
 
@@ -55,8 +64,6 @@ public class RoundRobinSimulation : MonoBehaviour
 
         remainingTimes = (int[])burstTimes.Clone();
 
-        queuePositions = new Vector3[processNames.Length];
-
         for (int i = 0; i < processNames.Length; i++)
         {
             GameObject block = GameObject.CreatePrimitive(
@@ -64,23 +71,12 @@ public class RoundRobinSimulation : MonoBehaviour
             );
 
             block.name = processNames[i];
-
             block.transform.SetParent(transform, false);
 
-            Vector3 position = new Vector3(
-                -0.6f + i * 0.3f,
-                0.15f,
-                0.4f
-            );
-
-            block.transform.localPosition = position;
-
-            queuePositions[i] = position;
+            block.transform.localPosition = Vector3.zero;
 
             block.transform.localScale =
                 new Vector3(0.18f, 0.18f, 0.18f);
-
-            
 
             GameObject label = new GameObject("Label");
 
@@ -98,9 +94,13 @@ public class RoundRobinSimulation : MonoBehaviour
             text.characterSize = 0.025f;
             text.anchor = TextAnchor.MiddleCenter;
             text.alignment = TextAlignment.Center;
+
             ProcessBlockStyle.Apply(block, i, text);
 
             processes[i] = block;
+
+            // Processes remain hidden until their arrival time.
+            block.SetActive(false);
         }
     }
 
@@ -108,156 +108,202 @@ public class RoundRobinSimulation : MonoBehaviour
     {
         yield return new WaitForSeconds(2f);
 
-        bool unfinished = true;
+        // Add processes that have arrived at time zero.
+        AddArrivedProcesses(simulationTime);
 
-        while (unfinished)
+        UpdateQueueVisuals();
+
+        while (readyQueue.Count > 0 ||
+               nextArrivalIndex < processNames.Length)
         {
-            unfinished = false;
-
-            for (int i = 0; i < processes.Length; i++)
+            // If the CPU has no process to execute,
+            // move simulation time to the next arrival.
+            if (readyQueue.Count == 0)
             {
-                if (remainingTimes[i] <= 0 || processes[i] == null)
-                    continue;
+                simulationTime =
+                    arrivalTimes[nextArrivalIndex];
 
-                unfinished = true;
+                AddArrivedProcesses(simulationTime);
 
-                // Check whether another unfinished process is waiting
-                bool anotherProcessWaiting = false;
+                UpdateQueueVisuals();
+            }
 
-                for (int j = 0; j < processes.Length; j++)
-                {
-                    if (j != i &&
-                        remainingTimes[j] > 0 &&
-                        processes[j] != null)
-                    {
-                        anotherProcessWaiting = true;
-                        break;
-                    }
-                }
+            if (readyQueue.Count == 0)
+                continue;
 
-                // Use the time quantum when other processes are waiting.
-                // Otherwise, let the final process finish.
-                int executionTime = anotherProcessWaiting
-                    ? Mathf.Min(timeQuantum, remainingTimes[i])
-                    : remainingTimes[i];
+            // Select the process at the front of the queue.
+            int currentIndex = readyQueue.Dequeue();
 
+            GameObject currentProcess = processes[currentIndex];
+
+            UpdateQueueVisuals();
+
+            int executionTime = Mathf.Min(
+                timeQuantum,
+                remainingTimes[currentIndex]
+            );
+
+            Debug.Log(
+                processNames[currentIndex] +
+                " starts executing for " +
+                executionTime + " time units."
+            );
+
+            if (SchedulingTableUI.Instance != null)
+            {
+                SchedulingTableUI.Instance.HighlightProcess(
+                    processNames[currentIndex]
+                );
+            }
+
+            // Execute the process and detect new arrivals
+            // while it is running.
+            yield return StartCoroutine(
+                ExecuteProcess(currentIndex, executionTime)
+            );
+
+            remainingTimes[currentIndex] -= executionTime;
+
+            if (SchedulingTableUI.Instance != null)
+            {
+                SchedulingTableUI.Instance.UpdateRemainingTime(
+                    processNames[currentIndex],
+                    remainingTimes[currentIndex]
+                );
+            }
+
+            TextMesh label =
+                currentProcess.GetComponentInChildren<TextMesh>();
+
+            if (label != null)
+            {
+                label.text = processNames[currentIndex] +
+                    "\nRemaining: " + remainingTimes[currentIndex];
+            }
+
+            if (remainingTimes[currentIndex] <= 0)
+            {
                 Debug.Log(
-                    processNames[i] +
-                    " is running for " +
-                    executionTime +
-                    " time units."
+                    processNames[currentIndex] + " finished!"
                 );
 
-                GameObject currentProcess = processes[i];
+                yield return new WaitForSeconds(0.5f);
 
-                // Highlight current process in the table
+                Destroy(currentProcess);
+
+                processes[currentIndex] = null;
+
                 if (SchedulingTableUI.Instance != null)
                 {
-                    SchedulingTableUI.Instance.HighlightProcess(
-                        processNames[i]
+                    SchedulingTableUI.Instance.CompleteProcess(
+                        processNames[currentIndex]
                     );
                 }
-
-                // Move process to CPU
-                yield return StartCoroutine(MoveProcess(
-                    currentProcess,
-                    currentProcess.transform.localPosition,
-                    cpu.localPosition,
-                    executionTime
-                ));
-
-                remainingTimes[i] -= executionTime;
-
-                // Update remaining time in the table
-                if (SchedulingTableUI.Instance != null)
-                {
-                    SchedulingTableUI.Instance.UpdateRemainingTime(
-                        processNames[i],
-                        remainingTimes[i]
-                    );
-                }
-
-                // Update remaining time above the cube
-                TextMesh label =
-                    currentProcess.GetComponentInChildren<TextMesh>();
-
-                if (label != null)
-                {
-                    label.text = processNames[i] +
-                        "\nRemaining: " + remainingTimes[i];
-                }
-
-                if (remainingTimes[i] <= 0)
-                {
-                    Debug.Log(processNames[i] + " finished!");
-
-                    yield return new WaitForSeconds(0.5f);
-
-                    Destroy(currentProcess);
-
-                    processes[i] = null;
-
-                    // Remove completed process from the table
-                    if (SchedulingTableUI.Instance != null)
-                    {
-                        SchedulingTableUI.Instance.CompleteProcess(
-                            processNames[i]
-                        );
-                    }
-                }
-                else
-                {
-                    Debug.Log(
-                        processNames[i] +
-                        " time slice finished. Returning to queue."
-                    );
-
-                    // Return unfinished process to its queue position
-                    yield return StartCoroutine(MoveProcess(
-                        currentProcess,
-                        currentProcess.transform.localPosition,
-                        queuePositions[i],
-                        0.5f
-                    ));
-                }
-
-                yield return new WaitForSeconds(0.3f);
             }
+            else
+            {
+                Debug.Log(
+                    processNames[currentIndex] +
+                    " time quantum finished. Returning to the queue."
+                );
+
+                // Newly arrived processes have already been added.
+                // Therefore, the unfinished process goes behind them.
+                readyQueue.Enqueue(currentIndex);
+            }
+
+            UpdateQueueVisuals();
+
+            yield return new WaitForSeconds(0.3f);
         }
 
         Debug.Log("Round Robin Scheduling completed!");
     }
 
-    IEnumerator MoveProcess(
-        GameObject process,
-        Vector3 start,
-        Vector3 end,
-        float duration)
+    IEnumerator ExecuteProcess(int index, int executionTime)
     {
+        GameObject process = processes[index];
+
         if (process == null)
             yield break;
 
+        Vector3 start = process.transform.localPosition;
+        Vector3 end = cpu.localPosition;
+
         float elapsed = 0f;
+float sliceStartTime = simulationTime;
 
-        while (elapsed < duration)
+float animationDuration =
+    executionTime * secondsPerBurstUnit;
+
+        while (elapsed < animationDuration)
+{
+    elapsed += Time.deltaTime;
+
+    float progress = Mathf.Clamp01(
+        elapsed / animationDuration
+    );
+
+    process.transform.localPosition =
+        Vector3.Lerp(start, end, progress);
+
+    // Update simulated time according to animation progress.
+    float currentSimulationTime =
+        sliceStartTime + progress * executionTime;
+
+    AddArrivedProcesses(currentSimulationTime);
+
+    UpdateQueueVisuals();
+
+    yield return null;
+}
+
+        process.transform.localPosition = end;
+
+        simulationTime = sliceStartTime + executionTime;
+
+        // Important: process arrivals at the exact end time
+        // before returning the unfinished process to the queue.
+        AddArrivedProcesses(simulationTime);
+    }
+
+    void AddArrivedProcesses(float currentTime)
+    {
+        while (nextArrivalIndex < processNames.Length &&
+               arrivalTimes[nextArrivalIndex] <= currentTime)
         {
-            if (process == null)
-                yield break;
+            int index = nextArrivalIndex;
 
-            elapsed += Time.deltaTime;
+            processes[index].SetActive(true);
 
-            process.transform.localPosition = Vector3.Lerp(
-                start,
-                end,
-                Mathf.Clamp01(elapsed / duration)
+            readyQueue.Enqueue(index);
+
+            Debug.Log(
+                processNames[index] +
+                " arrived and entered the ready queue."
             );
 
-            yield return null;
+            nextArrivalIndex++;
         }
+    }
 
-        if (process != null)
+    void UpdateQueueVisuals()
+    {
+        int positionIndex = 0;
+
+        foreach (int index in readyQueue)
         {
-            process.transform.localPosition = end;
+            if (processes[index] != null)
+            {
+                processes[index].transform.localPosition =
+                    new Vector3(
+                        -0.6f + positionIndex * 0.3f,
+                        0.15f,
+                        0.4f
+                    );
+
+                positionIndex++;
+            }
         }
     }
 }

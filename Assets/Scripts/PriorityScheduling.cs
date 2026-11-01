@@ -8,6 +8,8 @@ public class PriorityScheduling : MonoBehaviour
 
     private string[] processNames = { "P1", "P2", "P3", "P4", "P5" };
     private int[] burstTimes = { 4, 3, 2, 5, 1 };
+    [Header("Animation Settings")]
+public float secondsPerBurstUnit = 3.53f;
     private int[] priorities = { 3, 1, 2, 4, 2 };
     private bool hasStarted = false;
 
@@ -110,7 +112,7 @@ public class PriorityScheduling : MonoBehaviour
             Vector3 start = currentProcess.transform.localPosition;
             Vector3 end = cpu.localPosition;
 
-            float duration = burstTimes[bestIndex];
+            float duration = burstTimes[bestIndex] * secondsPerBurstUnit;
             float elapsed = 0f;
 
             while (elapsed < duration)

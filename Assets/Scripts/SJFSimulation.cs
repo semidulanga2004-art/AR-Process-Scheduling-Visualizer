@@ -8,6 +8,8 @@ public class SJFSimulation : MonoBehaviour
 
     private string[] processNames = { "P1", "P2", "P3", "P4", "P5" };
     private int[] burstTimes = { 4, 3, 2, 5, 1 };
+    [Header("Animation Settings")]
+public float secondsPerBurstUnit = 3.53f;
 
     private GameObject[] processes;
     private bool[] completed;
@@ -108,7 +110,7 @@ public class SJFSimulation : MonoBehaviour
             Vector3 start = currentProcess.transform.localPosition;
             Vector3 end = cpu.localPosition;
 
-            float duration = burstTimes[shortestIndex];
+            float duration = burstTimes[shortestIndex] * secondsPerBurstUnit;
             float elapsed = 0f;
 
             while (elapsed < duration)

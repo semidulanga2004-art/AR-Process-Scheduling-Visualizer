@@ -10,7 +10,8 @@ public class FCFSSimulation : MonoBehaviour
     // Example processes and their burst times
    private string[] processNames = { "P1", "P2", "P3", "P4", "P5" };
    private int[] burstTimes = { 4, 3, 2, 5, 1 };
-
+   [Header("Animation Settings")]
+public float secondsPerBurstUnit = 3.53f;
     private GameObject[] processes;
     private bool hasStarted = false;
 
@@ -96,7 +97,7 @@ IEnumerator RunFCFS()
         Vector3 start = currentProcess.transform.localPosition;
         Vector3 end = cpu.localPosition;
 
-        float duration = burstTimes[i];
+        float duration = burstTimes[i] * secondsPerBurstUnit;
         float elapsed = 0f;
 
         // Move the current process toward the CPU

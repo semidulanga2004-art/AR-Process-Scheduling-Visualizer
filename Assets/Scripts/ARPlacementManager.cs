@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
+using TMPro;
 
 public class ARPlacementManager : MonoBehaviour
 {
     public ARRaycastManager raycastManager;
+    public ARPlaneManager planeManager;
     public GameObject schedulingLabPrefab;
+    public VoiceOverController voiceOverController;
+    public TMP_Text instructionText;
 
     private List<ARRaycastHit> hits = new List<ARRaycastHit>();
     private bool labPlaced = false;
@@ -36,8 +40,33 @@ public class ARPlacementManager : MonoBehaviour
                 );
 
                 labPlaced = true;
+                                // Hide the surface instruction message
+                if (instructionText != null)
+                {
+                    instructionText.gameObject.SetActive(false);
+                }
+                // Hide all detected plane outlines
+                if (planeManager != null)
+                {
+                    foreach (ARPlane plane in planeManager.trackables)
+                    {
+                        plane.gameObject.SetActive(false);
+                    }
+
+                    // Stop further plane detection
+                    planeManager.enabled = false;
+                }
 
                 Debug.Log("Scheduling Lab placed!");
+                // Start the selected algorithm's voice-over
+                if (voiceOverController != null)
+                {
+                    voiceOverController.StartVoiceOver();
+                }
+                else
+                {
+                    Debug.LogError("VoiceOverController not assigned!");
+                }
 
                 // Start the selected algorithm
                 string algorithm = SceneNavigation.selectedAlgorithm;
@@ -117,4 +146,33 @@ public class ARPlacementManager : MonoBehaviour
             }
         }
     }
+    void OnEnable()
+{
+    if (planeManager != null)
+    {
+        planeManager.planesChanged += OnPlanesChanged;
+    }
+}
+
+void OnDisable()
+{
+    if (planeManager != null)
+    {
+        planeManager.planesChanged -= OnPlanesChanged;
+    }
+}
+
+void OnPlanesChanged(ARPlanesChangedEventArgs args)
+{
+    if (labPlaced || instructionText == null)
+        return;
+
+    if (args.added.Count > 0 || args.updated.Count > 0)
+{
+    instructionText.text =
+        "Surface Identified!\nTap a detected surface to start learning.";
+
+    instructionText.color = new Color32(46, 173, 112, 255);
+}
+}
 }

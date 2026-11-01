@@ -6,7 +6,7 @@ public class SRTFSimulation : MonoBehaviour
 {
     [Header("CPU Settings")]
     public Transform cpu;
-    public float timeUnitDuration = 1f;
+    public float timeUnitDuration = 3.05f;
 
     [Header("Process Information")]
     private string[] processNames =

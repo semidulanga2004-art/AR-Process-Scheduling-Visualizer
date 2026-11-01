@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 485789966780076710}
   - component: {fileID: 3147880686831776642}
   - component: {fileID: 2109114773350502554}
+  - component: {fileID: 876287457602631858}
   m_Layer: 0
   m_Name: CPU
   m_TagString: Untagged
@@ -67,7 +68,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: ebb13ccb0cc478044a3369da5c4b7c25, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -112,6 +113,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &876287457602631858
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4804747481661543332}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3f69876b61fd2d4697d1bdd0493590d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ARPinchToZoom
+  zoomSpeed: 1
+  minScale: 0.5
+  maxScale: 2
 --- !u!1 &5598205085895173213
 GameObject:
   m_ObjectHideFlags: 0
@@ -162,6 +178,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FCFSSimulation
   cpu: {fileID: 7286115592629563521}
+  secondsPerBurstUnit: 3.53
 --- !u!114 &8849547046958605836
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -175,6 +192,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PriorityScheduling
   cpu: {fileID: 7286115592629563521}
+  secondsPerBurstUnit: 3.53
 --- !u!114 &6352144996491433554
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -188,6 +206,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SJFSimulation
   cpu: {fileID: 7286115592629563521}
+  secondsPerBurstUnit: 3.53
 --- !u!114 &2686436900476592158
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -202,6 +221,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RoundRobinSimulation
   cpu: {fileID: 7286115592629563521}
   timeQuantum: 2
+  secondsPerBurstUnit: 3.53
 --- !u!114 &4827506839622687752
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -215,4 +235,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SRTFSimulation
   cpu: {fileID: 7286115592629563521}
-  timeUnitDuration: 1
+  timeUnitDuration: 3.05

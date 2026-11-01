@@ -33,6 +33,12 @@ public class QuizManager : MonoBehaviour
     public TMP_Text percentageText;
     public TMP_Text messageText;
     public GameObject bibiResult;
+    [Header("Quiz Result Sounds")]
+public AudioSource resultAudioSource;
+
+public AudioClip excellentWorkAudio;
+public AudioClip goodJobAudio;
+public AudioClip tryAgainAudio;
 
     [Header("Questions")]
     public Question[] questions;
@@ -137,34 +143,45 @@ public class QuizManager : MonoBehaviour
         }
     }
 
-    void ShowResults()
+    
+   void ShowResults()
+{
+    questionPanel.SetActive(false);
+    resultPanel.SetActive(true);
+
+    scoreText.text = "Your Score: " + score + "/" + questions.Length;
+
+    int percentage = Mathf.RoundToInt(
+        (float)score / questions.Length * 100);
+
+    percentageText.text = percentage + "%";
+
+    if (score >= 8)
     {
-        questionPanel.SetActive(false);
-        resultPanel.SetActive(true);
+        messageText.text = "Excellent! Amazing work!";
+        bibiResult.SetActive(true);
 
-        scoreText.text = "Your Score: " + score + "/" + questions.Length;
-
-        int percentage = Mathf.RoundToInt(
-            (float)score / questions.Length * 100);
-
-        percentageText.text = percentage + "%";
-
-        if (score >= 8)
-{
-    messageText.text = "Excellent! Amazing work!";
-    bibiResult.SetActive(true);
-}
-else if (score >= 5)
-{
-    messageText.text = "Good job! Keep learning!";
-    bibiResult.SetActive(false);
-}
-else
-{
-    messageText.text = "Don't give up! Try again!";
-    bibiResult.SetActive(false);
-}
+        if (excellentWorkAudio != null)
+            resultAudioSource.PlayOneShot(excellentWorkAudio);
     }
+    else if (score >= 5)
+    {
+        messageText.text = "Good job! Keep learning!";
+        bibiResult.SetActive(false);
+
+        if (goodJobAudio != null)
+            resultAudioSource.PlayOneShot(goodJobAudio);
+    }
+    else
+    {
+        messageText.text = "Don't give up! Try again!";
+        bibiResult.SetActive(false);
+
+        if (tryAgainAudio != null)
+            resultAudioSource.PlayOneShot(tryAgainAudio);
+    }
+}
+    
 
     public void RetryQuiz()
     {
