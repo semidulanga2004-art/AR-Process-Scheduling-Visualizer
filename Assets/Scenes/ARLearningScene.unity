@@ -745,7 +745,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 800, y: 600}
@@ -1089,7 +1089,7 @@ MonoBehaviour:
   planeManager: {fileID: 755478453}
   schedulingLabPrefab: {fileID: 5598205085895173213, guid: 8da58158ae8d94b44bbe70f06d42baa6, type: 3}
   voiceOverController: {fileID: 566821428}
-  instructionText: {fileID: 0}
+  instructionText: {fileID: 1518870187}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -1161,15 +1161,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: afb38b752b722f246a682bc9cba1cc29, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 25
+      value: 43
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: afb38b752b722f246a682bc9cba1cc29, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 200
+      value: 192
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: afb38b752b722f246a682bc9cba1cc29, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1.5
+      value: -65
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: afb38b752b722f246a682bc9cba1cc29, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1645,11 +1645,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 608079625}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: -10}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -33, y: 543}
   m_SizeDelta: {x: 700, y: 50}
-  m_Pivot: {x: 0, y: 1}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1518870187
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1699,14 +1699,14 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 50
+  m_fontSizeBase: 50
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
+  m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
