@@ -6,30 +6,35 @@ public class PriorityScheduling : MonoBehaviour
 {
     public Transform cpu;
 
-    private string[] processNames = { "P1", "P2", "P3" };
-    private int[] burstTimes = { 4, 3, 2 };
-    private int[] priorities = { 3, 1, 2 };
+    private string[] processNames = { "P1", "P2", "P3", "P4", "P5" };
+    private int[] burstTimes = { 4, 3, 2, 5, 1 };
+    private int[] priorities = { 3, 1, 2, 4, 2 };
+    private bool hasStarted = false;
 
     private GameObject[] processes;
 
-    void Start()
-    {
-        if (cpu == null)
+        public void StartSimulation()
         {
-            Transform foundCPU = transform.Find("CPU");
-            if (foundCPU != null)
-                cpu = foundCPU;
-        }
+            if (hasStarted) return;
 
-        if (cpu == null)
-        {
-            Debug.LogError("CPU child not found!");
-            return;
-        }
+            if (cpu == null)
+            {
+                Transform foundCPU = transform.Find("CPU");
+                if (foundCPU != null)
+                    cpu = foundCPU;
+            }
 
-        CreateProcesses();
-        StartCoroutine(RunPriority());
-    }
+            if (cpu == null)
+            {
+                Debug.LogError("CPU child not found!");
+                return;
+            }
+
+            hasStarted = true;
+
+            CreateProcesses();
+            StartCoroutine(RunPriority());
+        }
 
     void CreateProcesses()
     {
@@ -47,15 +52,7 @@ public class PriorityScheduling : MonoBehaviour
             block.transform.localScale =
                 new Vector3(0.18f, 0.18f, 0.18f);
 
-            Renderer r = block.GetComponent<Renderer>();
-
-            if (r != null)
-            {
-                r.material.color = new Color[]
-                {
-                    Color.green, Color.yellow, Color.cyan
-                }[i];
-            }
+            
 
             GameObject label = new GameObject("Label");
             label.transform.SetParent(block.transform, false);
@@ -70,6 +67,7 @@ public class PriorityScheduling : MonoBehaviour
             text.characterSize = 0.025f;
             text.anchor = TextAnchor.MiddleCenter;
             text.alignment = TextAlignment.Center;
+            ProcessBlockStyle.Apply(block, i, text);
 
             processes[i] = block;
         }
@@ -103,7 +101,8 @@ public class PriorityScheduling : MonoBehaviour
                 break;
 
             GameObject currentProcess = processes[bestIndex];
-
+            if (SchedulingTableUI.Instance != null)
+            SchedulingTableUI.Instance.HighlightProcess(processNames[bestIndex]);
             Debug.Log(processNames[bestIndex]
                 + " is running on the CPU. Priority: "
                 + priorities[bestIndex]);
@@ -132,6 +131,8 @@ public class PriorityScheduling : MonoBehaviour
             yield return new WaitForSeconds(0.5f);
 
             Destroy(currentProcess);
+            if (SchedulingTableUI.Instance != null)
+            SchedulingTableUI.Instance.CompleteProcess(processNames[bestIndex]);
             processes[bestIndex] = null;
             completed[bestIndex] = true;
 

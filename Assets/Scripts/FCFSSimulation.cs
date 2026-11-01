@@ -8,32 +8,34 @@ public class FCFSSimulation : MonoBehaviour
     public Transform cpu;
 
     // Example processes and their burst times
-    private string[] processNames = { "P1", "P2", "P3" };
-    private int[] burstTimes = { 4, 3, 2 };
+   private string[] processNames = { "P1", "P2", "P3", "P4", "P5" };
+   private int[] burstTimes = { 4, 3, 2, 5, 1 };
 
     private GameObject[] processes;
+    private bool hasStarted = false;
 
-    void Start()
+   public void StartSimulation()
+{
+    if (hasStarted) return;
+    // Find the CPU child automatically
+    if (cpu == null)
     {
-        // Find the CPU child automatically
-        if (cpu == null)
-        {
-            Transform foundCPU = transform.Find("CPU");
+        Transform foundCPU = transform.Find("CPU");
 
-            if (foundCPU != null)
-                cpu = foundCPU;
-        }
-
-        if (cpu == null)
-        {
-            Debug.LogError("CPU child not found!");
-            return;
-        }
-
-        CreateProcesses();
-        StartCoroutine(RunFCFS());
+        if (foundCPU != null)
+            cpu = foundCPU;
     }
 
+    if (cpu == null)
+    {
+        Debug.LogError("CPU child not found!");
+        return;
+    }
+
+    hasStarted = true;
+    CreateProcesses();
+    StartCoroutine(RunFCFS());
+}
     void CreateProcesses()
     {
         processes = new GameObject[processNames.Length];
@@ -55,18 +57,8 @@ public class FCFSSimulation : MonoBehaviour
             block.transform.localScale =
                 new Vector3(0.18f, 0.18f, 0.18f);
 
-            // Give each process a different colour
-            Renderer r = block.GetComponent<Renderer>();
-
-            if (r != null)
-            {
-                r.material.color = new Color[]
-                {
-                    Color.green, Color.yellow, Color.cyan
-                }[i];
-            }
-
-            // Display process name and burst time
+                
+                        // Display process name and burst time
             GameObject label = new GameObject("Label");
             label.transform.SetParent(block.transform, false);
             label.transform.localPosition = new Vector3(0, 1.0f, 0);
@@ -77,6 +69,7 @@ public class FCFSSimulation : MonoBehaviour
             text.characterSize = 0.025f;
             text.anchor = TextAnchor.MiddleCenter;
             text.alignment = TextAlignment.Center;
+            ProcessBlockStyle.Apply(block, i, text);
 
             processes[i] = block;
         }
@@ -95,6 +88,8 @@ IEnumerator RunFCFS()
 
         if (currentProcess == null)
             continue;
+            if (SchedulingTableUI.Instance != null)
+            SchedulingTableUI.Instance.HighlightProcess(processNames[i]);
 
         Debug.Log(processNames[i] + " is running on the CPU");
 
@@ -129,6 +124,8 @@ IEnumerator RunFCFS()
         // Remove the completed process and its label
         Destroy(currentProcess);
         processes[i] = null;
+        if (SchedulingTableUI.Instance != null)
+       SchedulingTableUI.Instance.CompleteProcess(processNames[i]);
 
         // Brief pause before the next process starts
         yield return new WaitForSeconds(0.5f);

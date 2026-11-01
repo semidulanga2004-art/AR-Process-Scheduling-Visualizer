@@ -123,6 +123,9 @@ GameObject:
   - component: {fileID: 1835352655184585407}
   - component: {fileID: 8888117280484238068}
   - component: {fileID: 8849547046958605836}
+  - component: {fileID: 6352144996491433554}
+  - component: {fileID: 2686436900476592158}
+  - component: {fileID: 4827506839622687752}
   m_Layer: 0
   m_Name: SchedulingLab
   m_TagString: Untagged
@@ -158,7 +161,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0080249f68c0e53468f812c45ce01a25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FCFSSimulation
-  cpu: {fileID: 0}
+  cpu: {fileID: 7286115592629563521}
 --- !u!114 &8849547046958605836
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -171,4 +174,45 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0db2e5cabc6b1144b47d50f23df6bc6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PriorityScheduling
-  cpu: {fileID: 0}
+  cpu: {fileID: 7286115592629563521}
+--- !u!114 &6352144996491433554
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5598205085895173213}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7307094aaeee6243aa1df878bff9890, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SJFSimulation
+  cpu: {fileID: 7286115592629563521}
+--- !u!114 &2686436900476592158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5598205085895173213}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13842a177fe245540bf8ddc39dabbd6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoundRobinSimulation
+  cpu: {fileID: 7286115592629563521}
+  timeQuantum: 2
+--- !u!114 &4827506839622687752
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5598205085895173213}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f6ecadc42f810a4a9355faa78c849c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SRTFSimulation
+  cpu: {fileID: 7286115592629563521}
+  timeUnitDuration: 1
